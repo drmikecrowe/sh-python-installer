@@ -41,7 +41,7 @@ install_python () {
         echo "Exiting this script!"
         exit 0
     fi
-
+    
     echo "Your current Python version is: ${old_version}"
 
     echo "Updating system"
@@ -52,6 +52,19 @@ install_python () {
 
     echo "Installing Python essentials"
     apt -qq install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev libsqlite3-dev wget libbz2-dev < /dev/null
+
+    find /usr/lib -name 'libffi*' | grep -q 'libffi.so.7'
+    if [[ $? != 0 ]]; then 
+        echo "Need to upgrade libffi"
+        
+        # from: https://community.home-assistant.io/t/cornered-trying-to-upgrade-python-to-avoid-3-8-deprecation/353418/6
+        wget "https://github.com/libffi/libffi/releases/download/v3.3/libffi-3.3.tar.gz"
+        tar zxf libffi-3.3.tar.gz
+        cd libffi-3.3
+        ./configure --enable-shared --disable-static --prefix /usr --disable-docs 
+        sudo make install
+        sudo ldconfig
+    fi
 
     echo "Downloading Python ${new_version}"
     wget ${url}
