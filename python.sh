@@ -85,16 +85,19 @@ install_python () {
     rm -rf ${file}
 
     new_python_version=$(python -c 'import platform; print(platform.python_version())')
+    echo "Let's install PIP"
+    apt -qq install python3-pip < /dev/null
+    
     if [ $old_python_version = $new_version ]; then
         echo "Version okay!"
     else
         echo "Okay, let's try to get your new installed to be the default!"
+        update-alternatives --install /usr/bin/python python /usr/bin/python3 1
         update-alternatives --install /usr/bin/python python /usr/bin/python${py_main_version} 1
+        update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1
     fi
-
-    echo "Let's install PIP"
-    apt -qq install python3-pip < /dev/null
-
+    python -m pip install --upgrade pip
+        
     clear
     echo "All Done!"
     echo "Your new Python version should be ${new_version}"
